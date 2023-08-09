@@ -14,24 +14,32 @@ axios.get(url, {
 .then(response => {
   const html = response.data;
   const $ = cheerio.load(html);
-  
+
   const button = $(`button[class*="${buttonClass}"]`);
-  
+
   if (button.length === 0) {
     console.log('Button not found.');
     return;
   }
 
-  // Extract the URL from the button's "data-url" attribute
-  const dataUrl = button.attr('data-url');
-
-  if (!dataUrl) {
-    console.log('Could not extract data URL from button.');
+  // Extract the JavaScript code from the onclick attribute
+  const onclickAttr = button.attr('onclick');
+  if (!onclickAttr) {
+    console.log('Button does not have an onclick attribute.');
     return;
   }
 
-  // Make an additional HTTP request to the data URL
-  return axios.get(dataUrl, {
+  // Extract the URL from the JavaScript code
+  const match = onclickAttr.match(/window\.location\.href\s*=\s*'([^']+)'/);
+  if (!match) {
+    console.log('Could not extract URL from onclick attribute.');
+    return;
+  }
+
+  const clickUrl = match[1];
+
+  // Make an additional HTTP request to the extracted URL
+  return axios.get(clickUrl, {
     headers: {
       Cookie: cookie
     }
