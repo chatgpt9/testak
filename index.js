@@ -22,19 +22,16 @@ axios.get(url, {
     return;
   }
 
-  // Extract the URL from the button's "onclick" attribute
-  const onclickAttr = button.attr('onclick');
-  const match = onclickAttr.match(/window\.location='(.*?)'/);
+  // Extract the URL from the button's "data-url" attribute
+  const dataUrl = button.attr('data-url');
 
-  if (!match) {
-    console.log('Could not extract URL from button.');
+  if (!dataUrl) {
+    console.log('Could not extract data URL from button.');
     return;
   }
 
-  const clickUrl = match[1];
-
-  // Make an additional HTTP request to simulate the button click
-  return axios.get(clickUrl, {
+  // Make an additional HTTP request to the data URL
+  return axios.get(dataUrl, {
     headers: {
       Cookie: cookie
     }
