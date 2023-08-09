@@ -22,21 +22,41 @@ axios.get(url, {
     return;
   }
 
-  // Simulate the click by triggering the 'click' event
-  button.click();
+  // Extract the URL from the button's "onclick" attribute
+  const onclickAttr = button.attr('onclick');
+  const match = onclickAttr.match(/window\.location='(.*?)'/);
 
-  // Wait for 5 seconds
-  setTimeout(() => {
-    const aTag = $('a.kt-unexpandable-row__action.kt-text-truncate');
+  if (!match) {
+    console.log('Could not extract URL from button.');
+    return;
+  }
 
-    if (aTag.length === 0) {
-      console.log('Anchor tag not found.');
-      return;
+  const clickUrl = match[1];
+
+  // Make an additional HTTP request to simulate the button click
+  return axios.get(clickUrl, {
+    headers: {
+      Cookie: cookie
     }
+  });
+})
+.then(response => {
+  if (!response) {
+    return;
+  }
 
-    const hrefValue = aTag.attr('href');
-    console.log('Href Value:', hrefValue);
-  }, 5000);
+  const clickResponse = response.data;
+  const $ = cheerio.load(clickResponse);
+
+  const aTag = $('a.kt-unexpandable-row__action.kt-text-truncate');
+
+  if (aTag.length === 0) {
+    console.log('Anchor tag not found.');
+    return;
+  }
+
+  const hrefValue = aTag.attr('href');
+  console.log('Href Value:', hrefValue);
 })
 .catch(error => {
   console.error('Error:', error.message);
